@@ -1,0 +1,26 @@
+description = "Spring Feature Usage Examples"
+
+dependencies {
+    compileOnly(project(":spring-context"))
+    compileOnly(project(":spring-aop"))
+    compileOnly(project(":spring-tx"))
+    compileOnly(project(":spring-jdbc"))
+    compileOnly(project(":spring-webmvc"))
+    compileOnly(project(":spring-test"))
+    compileOnly("jakarta.servlet:jakarta.servlet-api")
+    testImplementation(project(":spring-context"))
+    testImplementation(project(":spring-aop"))
+    testImplementation(project(":spring-tx"))
+    testImplementation(project(":spring-jdbc"))
+    testImplementation(project(":spring-webmvc"))
+    testImplementation(project(":spring-test"))
+    testImplementation("jakarta.servlet:jakarta.servlet-api")
+    testRuntimeOnly("com.h2database:h2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.assertj:assertj-core")
+    testRuntimeOnly("org.aspectj:aspectjweaver")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}

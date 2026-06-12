@@ -1,0 +1,53 @@
+Data binding involves binding untrusted input onto application objects.
+For security reasons, it's crucial to ensure that input is properly constrained to expected fields only.
+This section provides guidance for safe binding.
+
+First, prefer **immutable object design** for web binding purposes.
+It is safe because a constructor naturally constrains binding to expected inputs.
+You can use a Java record or a class with a primary constructor, and either can have further nested objects.
+See xref:core/validation/data-binding.adoc#data-binding-constructor-binding[Constructor Binding] for details.
+
+Another option for safe binding is to use **dedicated objects** designed for the expected input.
+Such objects, even if mutable, are safe because they constrain binding to the expected inputs.
+
+Domain objects such as JPA or Hibernate entities are generally not safe for web binding
+as they likely contain more properties than the expected inputs.
+For such cases, it's crucial to declare the properties to expose for binding.
+For example:
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+	@Controller
+	public class PersonController {
+
+		@InitBinder
+		void initBinder(WebDataBinder binder) {
+			// See Javadoc for supported pattern syntax
+			binder.setAllowedFields("firstName", "lastName", "*Address");
+		}
+	}
+----
+
+NOTE: It is also possible to configure `disallowedFields`, but that's fragile, and
+due to be https://github.com/spring-projects/spring-framework/issues/36802[deprecated] in Spring Framework 7.1.
+It is easy to overlook fields or introduce additional fields over time that should also be excluded.
+
+By default, `DataBinder` applies both constructor and setter binding.
+This is fine with immutable objects and dedicated objects, but for domain objects, you must
+remember to set `allowedFields`. To ensure data binding is only used in declarative style where
+expected inputs are explicitly declared, you can set  `declarativeBinding` on `DataBinder`.
+That applies constructor binding always, and setter binding conditionally if `allowedFields` is set.
+The following shows how to set this flag globally, or
+you can also narrow it through attributes on `ControllerAdvice`:
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+	@ControllerAdvice
+	public class ControllerConfig {
+
+		@InitBinder
+		void initBinder(WebDataBinder binder) {
+			binder.setDeclarativeBinding(true);
+		}
+	}
+----
